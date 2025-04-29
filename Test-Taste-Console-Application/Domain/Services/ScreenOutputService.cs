@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Test_Taste_Console_Application.Constants;
+using Test_Taste_Console_Application.Domain.DataTransferObjects;
 using Test_Taste_Console_Application.Domain.Objects;
 using Test_Taste_Console_Application.Domain.Services.Interfaces;
 using Test_Taste_Console_Application.Utilities;
@@ -14,10 +18,13 @@ namespace Test_Taste_Console_Application.Domain.Services
 
         private readonly IMoonService _moonService;
 
-        public ScreenOutputService(IPlanetService planetService, IMoonService moonService)
+        private readonly IBodyService _bodyService;
+
+        public ScreenOutputService(IPlanetService planetService, IMoonService moonService, IBodyService bodyService)
         {
             _planetService = planetService;
             _moonService = moonService;
+            _bodyService = bodyService;
         }
 
         public void OutputAllPlanetsAndTheirMoonsToConsole()
@@ -103,7 +110,7 @@ namespace Test_Taste_Console_Application.Domain.Services
         {
             //The function works the same way as the PrintAllPlanetsAndTheirMoonsToConsole function. You can find more comments there.
             var moons = _moonService.GetAllMoons().ToArray();
-            
+
             if (!moons.Any())
             {
                 Console.WriteLine(OutputString.NoMoonsFound);
@@ -131,7 +138,7 @@ namespace Test_Taste_Console_Application.Domain.Services
 
             ConsoleWriter.CreateLine(columnSizesForMoons);
             ConsoleWriter.CreateEmptyLines(2);
-            
+
             /*
                 This is an example of the output for the moon around the earth:
                 --------------------+--------------------+------------------------------+--------------------
@@ -162,9 +169,9 @@ namespace Test_Taste_Console_Application.Domain.Services
 
             ConsoleWriter.CreateHeader(columnLabels, columnSizes);
 
-            foreach(Planet planet in planets)
+            foreach (Planet planet in planets)
             {
-                if(planet.HasMoons())
+                if (planet.HasMoons())
                 {
                     ConsoleWriter.CreateText(new string[] { $"{planet.Id}", $"{planet.AverageMoonGravity}" }, columnSizes);
                 }
@@ -176,7 +183,7 @@ namespace Test_Taste_Console_Application.Domain.Services
 
             ConsoleWriter.CreateLine(columnSizes);
             ConsoleWriter.CreateEmptyLines(2);
-            
+
             /*
                 --------------------+--------------------------------------------------
                 Planet's Number     |Planet's Average Moon Gravity
@@ -185,5 +192,37 @@ namespace Test_Taste_Console_Application.Domain.Services
                 --------------------+--------------------------------------------------
             */
         }
+
+        public async Task OutputAllBodiesAndTheirAverageMoonGravityToConsole()
+        {
+            Console.WriteLine("Fetching planets...");
+
+            //The function works the same way as the PrintAllPlanetsAndTheirMoonsToConsole function. You can find more comments there.
+            var bodies = await _bodyService.GetBodiesAsync();
+
+            if (!bodies.Any())
+            {
+                Console.WriteLine(OutputString.NoMoonsFound);
+                return;
+            }
+
+            var columnSizes = new[] { 20, 30 };
+            var columnLabels = new[] { OutputString.PlanetId, OutputString.PlanetMoonAverageGravity };
+
+            ConsoleWriter.CreateHeader(columnLabels, columnSizes);
+
+            foreach (var body in bodies)
+            {
+                if (body?.moons?.Count > 0 && body.avgTemp.HasValue)
+                {
+                    var avgGravity = body.avgTemp.Value; // Consider renaming if this is not actually gravity
+                    ConsoleWriter.CreateText(new[] { body.id, avgGravity.ToString("F2") }, columnSizes);
+                }
+            }
+
+            ConsoleWriter.CreateLine(columnSizes);
+            ConsoleWriter.CreateEmptyLines(2);
+        }
+
     }
 }

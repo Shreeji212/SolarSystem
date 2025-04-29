@@ -22,6 +22,5 @@
 
     <ItemGroup>
       <Folder Include="FileOutput\" />
-      <Folder Include="Domain\Objects\" />
     </ItemGroup>
 </Project>

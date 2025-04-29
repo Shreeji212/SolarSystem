@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using log4net;
 using log4net.Config;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,17 +14,17 @@ namespace Test_Taste_Console_Application
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var serviceCollection = new ServiceCollection();
             //The ConfigureServices function configures the services.
             ConfigureServices(serviceCollection);
             
             //The RunServiceOperations function executes the code that can create the outputs.
-            RunServiceOperations(serviceCollection);
+            await RunServiceOperations(serviceCollection);
         }
 
-        private static void RunServiceOperations(IServiceCollection serviceCollection)
+        private static async Task RunServiceOperations(IServiceCollection serviceCollection)
         {
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -32,9 +33,10 @@ namespace Test_Taste_Console_Application
 
             try
             {
-                screenOutputService.OutputAllPlanetsAndTheirAverageMoonGravityToConsole();
-                screenOutputService.OutputAllMoonsAndTheirMassToConsole();
-                screenOutputService.OutputAllPlanetsAndTheirMoonsToConsole();
+                //screenOutputService.OutputAllPlanetsAndTheirAverageMoonGravityToConsole();
+                //screenOutputService.OutputAllMoonsAndTheirMassToConsole();
+                //screenOutputService.OutputAllPlanetsAndTheirMoonsToConsole();
+                await screenOutputService.OutputAllBodiesAndTheirAverageMoonGravityToConsole();
             }
             catch (Exception exception)
             {
@@ -56,6 +58,7 @@ namespace Test_Taste_Console_Application
             serviceCollection.AddSingleton<IPlanetService, PlanetService>();
             serviceCollection.AddSingleton<IOutputService, ScreenOutputService>();
             serviceCollection.AddSingleton<IMoonService, MoonService>();
+            serviceCollection.AddSingleton<IBodyService, BodyService>();
         }
     }
 }
